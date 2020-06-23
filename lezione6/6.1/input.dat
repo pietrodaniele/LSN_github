@@ -1,0 +1,19 @@
+0.5
+2.0
+50
+1.0
+0.02
+0
+20
+10000
+20
+
+  ReadInput >> temp_low;
+  ReadInput >> temp_high;
+  ReadInput >> nspin;
+  ReadInput >> J;
+  ReadInput >> h;
+  ReadInput >> metro;
+  ReadInput >> nblk;
+  ReadInput >> nstep;
+  ReadInput >> camp; // campionamenti tra temp_low e temp_high
