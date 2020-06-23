@@ -1,0 +1,16 @@
+# file xyz
+*.xyz
+# jupyter lectures
+LSN_Exercises_01.ipynd
+LSN_Exercises_02.ipynd
+LSN_Exercises_03.ipynd
+LSN_Exercises_04.ipynd
+LSN_Exercises_05.ipynd
+LSN_Exercises_06.ipynd
+LSN_Exercises_08.ipynd
+LSN_Exercises_09.ipynd
+LSN_Exercises_10.ipynd
+LSN_Exercises_11.ipynd
+LSN_Exercises_12.ipynd
+# Jupyter Notebook
+.ipynb_checkpoints
