@@ -38,7 +38,7 @@ int main(){
 	for(double temp=ising.Get_temp_high(); temp>=ising.Get_temp_low(); temp-=a){
 		double beta = 1.0/temp;
 		// ciclo di equilibrazione
-		double sigma = 0.02;
+		double sigma = 0.001;
 	 	ising.Auto_eq(rnd,temp,sigma);
 		// calcolo i valori dei 20 blocchi
 		cout << "------------Values for temperature = " << temp <<" ----------------------------------" << endl;
@@ -53,8 +53,9 @@ int main(){
 				ising.Move(beta,rnd);
 			}
 			ene[j] = ising.Get_u()/(ising.Get_nstep()*ising.Get_nspin());
-			ene2[j] = ising.Get_u2()/(ising.Get_nstep()*ising.Get_nspin());
-			heat[j] = pow(beta,2)*(ene2[j]-pow(ene[j],2));
+			ene2[j] = ising.Get_u2();
+			heat[j] = pow(beta,2)*(ene2[j]-ene[j]*ene[j]);
+			//heat[j] = pow(beta,2)*(ising.Get_u2())/(ising.Get_nstep());
 			magnet[j] = ising.Get_magn()/(ising.Get_nstep()*ising.Get_nspin());
 			susc[j] = beta*ising.Get_chi()/(ising.Get_nstep()*ising.Get_nspin());
 			cout << ene[j] << " " << heat[j] << " " << magnet[j] << " " << susc[j] << endl;

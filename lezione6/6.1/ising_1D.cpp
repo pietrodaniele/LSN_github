@@ -93,21 +93,28 @@ void Ising_1D :: Move(double beta, Random& rnd){
 };
 
 void Ising_1D :: Measure(){
+	//double e_var[nspin], var=0, e_mean=0;
+	double ene_2 = 0;
 	// muovo dopo la misura in quanto ho già la config iniziale
 	for(int j=0; j<nspin; j++){
 		double ene = -J * s[j] * s[Pbc(j+1,nspin)] - 0.5 * h * (s[j] + s[Pbc(j+1,nspin)]);
 		u += ene;
-		u2 += pow(ene,2);
-		// cout << u << " " << u2 << endl;
+		/*e_var[j]=ene;
+		e_mean += ene;*/
+		ene_2 += pow(ene,2);
 		magn += s[j];
 		double Sp = 0.0, Uj = 0.0;
 		for(int b=0; b<nspin; b++){
 			Sp += s[b];
-			//Uj += -J * s[b] * s[Pbc(b+1,nspin)];
 		}
-	//	u2 +=  -J * s[j] * s[Pbc(j+1,nspin)]*Uj;
 		chi += s[j]*Sp;
 	}
+	u2 += ene_2/(nspin*nstep);
+	/*e_mean /= nspin;
+	for(int j=0; j<nspin; j++){
+		var += (e_var[j]-e_mean)*(e_var[j]-e_mean);
+	}
+	u2 += var/nspin;*/
 };
 
 void Ising_1D :: av2(double* av, double* av2){
@@ -130,42 +137,28 @@ void Ising_1D :: accumulation(double* av, double* sum_prog, double* av2, double*
 	}
 };
 
-
-
 void Ising_1D :: Auto_eq(Random& rnd, double temp, double sigma){
 	// ciclo di equilibrazione
 	cout << endl;
 	cout << "Equilibrating the configuration at the temperature " << temp << " ..." << endl << endl;
-	/*int equ=0,MCsteps=0;
-	double U_teo = -J*(tanh(J/temp)+pow((tanh(J/temp)),nspin)/tanh(J/temp))/(1+pow(tanh(J/temp),nspin));
-	u=0;
-	while(equ<10){
-		for(int l=0; l<10; l++){
-			Move(1/temp,rnd);
-			Measure();
-			MCsteps++;
-		}
-		//cout << u/(10*nspin) << U_teo << endl;
-		double delta = abs((u/(10*nspin)) - U_teo);
-		if(delta <= sigma){
-			equ++;
-		}
-		u=0;
-	}
-	/*/double Av = 0, Av2 = 0;
-	unsigned int MCsteps = 1;
+	double Av = 0;
+	unsigned int MCsteps = 1, early_stop=0;
 	int k=1;
 	do{
 		u=0;
 		Measure();
+		double old_Av = Av;
 		Av = Av*(nspin)*(k-1) + u;
-		Av2 = Av2*(nspin)*(k-1) + u*u;
 		Av /= (nspin*k);
-		Av2 /= (*nspin*k);
+		if((old_Av-Av)<sigma){
+			early_stop++;
+		}else{
+			early_stop=0;
+		}
 		MCsteps++;
 		k++;
 		Move(1/temp,rnd);
-	}while((Av2-Av*Av)/MCsteps > sigma*sigma && MCsteps<=100000);
+	}while(early_stop!=10 && MCsteps<=100000);
 	cout << "The config. at the temperature " << temp << " is equilibrated with a tolerance="<<sigma<<" after " << MCsteps << " steps." << endl<< endl;
 
 	return;
