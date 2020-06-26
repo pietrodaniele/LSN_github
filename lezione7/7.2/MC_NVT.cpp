@@ -179,13 +179,9 @@ void Mc_nvt :: Measure(){
 
   }
   for(int i=0; i<bins; i++){
-    dR = bin_size*(i+0.5);
-    double vb = ((i+1)*(i+1)*(i+1)-i*i*i)*dR*dR*dR;
-    double deltaV =  (4./3.)*pi*vb;
-    // double deltaV =  (4.)*pi*(pow(dradial,2)*dR);
+    double deltaV =  (4./3.)*pi*(pow((i+1)*bin_size,3)-pow((i)*bin_size,3));
     // cout << deltaV << endl;
-    //hist_block[i] += double(hist[i]/(rho*npart*deltaV));
-    hist_block[i] += double(hist[i]/(1));
+    hist_block[i] += double(hist[i]/(rho*npart*deltaV));
   }
 // writing insta values
   ofstream WriteInsta;
@@ -273,8 +269,6 @@ void Mc_nvt :: Final_g_err(){
   Write.close();
   return;
 };
-
-
 
 double Mc_nvt :: Pbc(double r){
   return r - box * rint(r/box);

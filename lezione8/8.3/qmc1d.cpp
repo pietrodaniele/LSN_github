@@ -184,17 +184,17 @@ double external_potential_second(double val)
 // to modify its second derivative below!
 double variationalWaveFunction(double x)
 {
-	//return 1.0;
-	return (exp(-((x-mu)*(x-mu))/(2*sigma*sigma))+exp(-((x+mu)*(x+mu))/(2*sigma*sigma)));
+	return 1.0;
+	//return (exp(-((x-mu)*(x-mu))/(2*sigma*sigma))+exp(-((x+mu)*(x+mu))/(2*sigma*sigma)));
 }
 
 double variationalWaveFunction_second(double x)
 {
-	//return 0;
-	return -(exp(-(x-mu)*(x-mu)/(2*sigma*sigma)))/(sigma*sigma) \
+	return 0;
+	/*return -(exp(-(x-mu)*(x-mu)/(2*sigma*sigma)))/(sigma*sigma) \
           -(exp(-(x+mu)*(x+mu)/(2*sigma*sigma)))/(sigma*sigma) \
           +(pow(x-mu,2))*(exp(-(x-mu)*(x-mu)/(2*sigma*sigma)))/(pow(sigma,4)) \
-          +(pow(x+mu,2))*(exp(-(x+mu)*(x+mu)/(2*sigma*sigma)))/(pow(sigma,4));
+          +(pow(x+mu,2))*(exp(-(x+mu)*(x+mu)/(2*sigma*sigma)))/(pow(sigma,4));*/
 }
 
 void translation()
@@ -456,7 +456,7 @@ Then the error is calculated by the usual formula err(A)=sqrt(|<A><A>-<A*A>|/Nbl
 */
 void finalizePotentialEstimator()
 {
-	ofstream out("potential.dat");
+	ofstream out("data/potential.dat");
 	for(int i=0;i<timeslices;i++)
 	{
 		double potential_energy_average = potential_energy_accumulator[i]/blocks;
@@ -469,7 +469,7 @@ void finalizePotentialEstimator()
 
 void finalizeKineticEstimator()
 {
-	ofstream out("kinetic.dat");
+	ofstream out("data/kinetic.dat");
 	for(int i=0;i<timeslices;i++)
 	{
 		double kinetic_energy_average = kinetic_energy_accumulator[i]/blocks;
@@ -483,7 +483,7 @@ void finalizeKineticEstimator()
 
 void finalizeHistogram()
 {
-	ofstream out("probability.dat");
+	ofstream out("data/probability.dat");
         double current_position, hist_average, hist_square_avg, error;
 	double delta_pos = (histogram_end-histogram_start)/histogram_bins;
         double norma = 0.0;

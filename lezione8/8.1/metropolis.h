@@ -31,5 +31,3 @@ public:
 #endif // __Random__
 
 
-// includo il random walk per il T(x'|x_n); devo però implementare il fatto che sia continuo qui comprende tutti i punti all'interno
-// del delta. Al di fuori di delta sarà nulla

@@ -33,6 +33,6 @@ int main(int argc, char const *argv[]){
   }
   //nvt.Print_hist_block();
   cout << "Calculating final average value of 𝑔(𝑟) with uncert. ..." << endl;
-  //nvt.Final_g_err(); // stampa hist finale creato accumulando tutti i vari blocchi e le incertezze
+  nvt.Final_g_err(); // stampa hist finale creato accumulando tutti i vari blocchi e le incertezze
 return 0;
 }

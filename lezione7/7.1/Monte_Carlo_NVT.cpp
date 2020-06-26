@@ -26,6 +26,11 @@ int main(int argc, char const *argv[])
   int state_of_the_system = atoi(argv[1]);
   Input(state_of_the_system); //Inizialization
   int nconf = 1;
+  // equilibration
+  for(int i=0; i<1500; i++){
+  	Move();
+  }
+  cout << "Monte Carlo simulation is equilibrated" << endl; 
   for(int iblk=1; iblk <= nblk; ++iblk) //Simulation
   {
     Reset(iblk);   //Reset block averages

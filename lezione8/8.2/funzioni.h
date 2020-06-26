@@ -6,6 +6,7 @@
 #include "FunzBase.h"
 #include "random.h"
 
+
 using namespace std;
 
 void createrandom(Random&);
@@ -18,4 +19,4 @@ double minimum(double, double);
 
 void write_try(vector<double>&, vector<double>&);
 
-void norm2(FunzBase&, Random& );
+void norm(FunzBase&, Random& );

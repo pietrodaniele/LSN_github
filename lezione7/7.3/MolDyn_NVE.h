@@ -31,11 +31,21 @@ double energy,temp,vol,rho,box,rcut;
 int nstep, iprint, seed;
 double delta;
 
+// g(r)
+int bins=100;
+double bin_size;
+double* hist = new double[bins];
+double* hist_block = new double[bins];
+double* hist_finale = new double[bins];
+
 //functions
 void controll(int);
 void Input(void);
 void Restart(void);
 void Move(void);
+void Print_hist_block(int);
+void Clean_hist_block();
+void Final_g_err(int);
 void ConfFinal(void);
 void ConfOld(void);
 void ConfXYZ(int);

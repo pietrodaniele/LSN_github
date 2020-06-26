@@ -34,7 +34,7 @@ void Metropolis :: Algoritm_unif(int n, FunzBase& f, Random& rnd, vector<double>
 		accettanza_uniform(alfa,x,rnd,acc,i,x_try);
 	}
 	// stampo ora una stima dell'accettanza
-	cout << "L'accettanza è del " << acc*100/n << "%" << endl;
+	//cout << "L'accettanza è del " << acc*100/n << "%" << endl;
 	return;
 }
 
@@ -49,7 +49,7 @@ void Metropolis :: Algoritm_unif_Try(int n, FunzBase& f, Random& rnd, vector<dou
 		accettanza_uniform(alfa,x,rnd,acc,i,x_try);
 	}
 	// stampo ora una stima dell'accettanza
-	cout << "L'accettanza è del " << acc*100/n << "%" << endl;
+	//cout << "L'accettanza è del " << acc*100/n << "%" << endl;
 	return;
 }
 

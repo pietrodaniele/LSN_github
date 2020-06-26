@@ -65,11 +65,15 @@ void write_try(vector<double>& x, vector<double>& x2){
 }
 
 void norm(FunzBase& f, Random& rnd){
-  ofstream Norm;
+  ofstream Norm, Norm2;
   Norm.open("data/Funz.norm");
+  Norm2.open("data/Funz2.norm");
   for(double i=-7.5 ;i<=7.5; i+=0.05){
     Norm << f.Eval(i) << endl;
+    Norm2 << f.Eval2(i) << endl;
+   
   }
   Norm.close();
+  Norm2.close();
   return;
 }
