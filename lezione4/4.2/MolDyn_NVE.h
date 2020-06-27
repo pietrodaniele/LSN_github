@@ -39,10 +39,10 @@ void Move(void);
 void ConfFinal(void);
 void ConfOld(void);
 void ConfXYZ(int);
-void Measure(void);
+void Measure(std::string);
 double Force(int, int);
 double Pbc(double);
-void Write(double *, double *,std::string *, int , int );
+void Write(double *, double *,std::string *, int , int, std::string);
 /****************************************************************
 *****************************************************************
     _/    _/  _/_/_/  _/       Numerical Simulation Laboratory

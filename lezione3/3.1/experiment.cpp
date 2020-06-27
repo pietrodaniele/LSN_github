@@ -12,40 +12,38 @@ Experiment :: Experiment(){}
 
 Experiment :: ~Experiment(){}
 
-void Experiment :: cicleblock(vector<double>& av, vector<double>& av2, Random rnd, int N, int L){
-	vector<double> r;
+void Experiment :: cicleblock(vector<double>& r, int n, int l){
+
 	double sum;
 	int k=0;
-	for(int i=0; i<N*L; i++){
-		r.push_back(rnd.Rannyu());
-	}
-	for(int i=0; i<N; i++){
+	for(int i=0; i<n; i++){
 		sum=0;
-		for(int j=0; j<L; j++){
-			k=j+i*L;
+		for(int j=0; j<l; j++){
+			k=j+i*l;
 			sum += r[k];
+			//cout << k << endl;
 		}
-		av.push_back(sum/L);
+		av.push_back(sum/l);
 		av2.push_back(av[i]*av[i]);
 	}
 	return;
 }
 
-void Experiment :: accumulation(vector<double>& sum_prog, vector<double>& av, int N){
-	for(int i=0; i<N; i++){
-		sum_prog.push_back(0);
+void Experiment :: accumulation(vector<double>& a, vector<double>& b){
+	for(unsigned int i=0; i<b.size(); i++){
+		a.push_back(0);
 	}
-	for(int i=0; i<N; i++){
-		for(int j=0; j<i+1; j++){
-			sum_prog[i]+=av[j];
+	for(unsigned int i=0; i<b.size(); i++){
+		for(unsigned int j=0; j<i+1; j++){
+			a[i]+=b[j];
 		}
-		sum_prog[i]=sum_prog[i]/(i+1);
+		a[i]=a[i]/(i+1);
 	}
-	return;	
+	return;
 }
 
-void Experiment :: errorprog(vector<double>& sum_prog, vector<double>& sum2_prog, vector<double>& error_prog, int N){
-	for(int i=0; i<N; i++){
+void Experiment :: errorprog(){
+	for(unsigned int i=0; i<sum_prog.size(); i++){
 		if(i==0){
 			error_prog.push_back(0);
 		 }else{
@@ -54,7 +52,21 @@ void Experiment :: errorprog(vector<double>& sum_prog, vector<double>& sum2_prog
 	}
 	return;
 }
-	
 
-
-
+void Experiment :: Block_prog_ave_print(vector<double>& r, string filename, int n, int l){
+	ofstream Write;
+	Write.open("data/"+filename+".dat");
+	cicleblock(r,n,l);
+	accumulation(sum_prog,av);
+	accumulation(sum2_prog,av2);
+	errorprog();
+	for(unsigned int i=0; i<error_prog.size(); i++){
+		Write<<i<<" "<<sum_prog[i]<<" "<<error_prog[i]<<endl;
+	}
+	Write.close();
+	av.clear();
+	av2.clear();
+	sum_prog.clear();
+	sum2_prog.clear();
+	error_prog.clear();
+}

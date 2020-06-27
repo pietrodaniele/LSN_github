@@ -7,6 +7,9 @@
 _/    _/  _/_/_/  _/_/_/_/ email: Davide.Galli@unimi.it
 *****************************************************************
 *****************************************************************/
+
+using namespace std;
+
 //parameters, observables
 const int m_props=4;
 int n_props;
@@ -30,11 +33,14 @@ int nstep, iprint, seed;
 double delta;
 
 //functions
+void controll(int);
 void Input(void);
+void Restart(void);
 void Move(void);
 void ConfFinal(void);
+void ConfOld(void);
 void ConfXYZ(int);
-void Measure(void);
+void Measure(string);
 double Force(int, int);
 double Pbc(double);
 /****************************************************************

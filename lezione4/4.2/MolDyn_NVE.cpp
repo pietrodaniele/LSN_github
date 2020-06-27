@@ -20,7 +20,7 @@ using namespace std;
 
 int main(int argc,char*argv[]){
   controll(argc);
-  if(atoi(argv[1])==0){ 
+  if(atoi(argv[1])==0){
   	Input();
   	cout << "First sim" << endl;
   }else{
@@ -32,8 +32,8 @@ int main(int argc,char*argv[]){
      Move();           //Move particles with Verlet algorithm
      if(istep%iprint == 0) cout << "Number of time-steps: " << istep << endl;
      if(istep%10 == 0){
-        Measure();     //Properties measurement
-//        ConfXYZ(nconf);//Write actual configuration in XYZ format //Commented to avoid "filesystem full"! 
+        Measure(argv[2]);     //Properties measurement
+//        ConfXYZ(nconf);//Write actual configuration in XYZ format //Commented to avoid "filesystem full"!
         nconf += 1;
      }
   }
@@ -46,18 +46,18 @@ int main(int argc,char*argv[]){
   Experiment Md;
   double av[Num], av2[Num], sum_prog[Num], sum2_prog[Num], error_prog[Num];
   for(int k=0; k<4; k++){
-  	Md.cicleblock(av,av2,type,nmis,L,k);
+  	Md.cicleblock(av,av2,type,nmis,L,k,argv[2]);
   	Md.accumulation(sum_prog,av,Num);
   	Md.accumulation(sum2_prog,av2,Num);
   	Md.errorprog(sum_prog,sum2_prog,error_prog,Num);
-  	Write(sum_prog,error_prog,type,Num,k);
+  	Write(sum_prog,error_prog,type,Num,k,argv[2]);
   }
   return 0;
 }
 
-void Write(double* v1, double *v2, string *type, int nmis, int k){
+void Write(double* v1, double *v2, string *type, int nmis, int k, string state){
 	ofstream WriteData;
-	WriteData.open("ave_"+type[k]+".dat");
+	WriteData.open("data/ave_"+type[k]+"_"+state+".dat");
 	for(int i=0; i<nmis; i++){
 		WriteData<<v1[i]<<" "<<v2[i]<<endl;
 	}
@@ -76,7 +76,7 @@ void Input(void){ //Prepare all stuff for the simulation
 
   seed = 1;    //Set seed for random numbers
   srand(seed); //Initialize random number generator
-  
+
   ReadInput.open("input.dat"); //Read input
 
   ReadInput >> temp;
@@ -142,7 +142,7 @@ void Input(void){ //Prepare all stuff for the simulation
    }
    sumv2 /= (double)npart;
 
-   fs = sqrt(3 * temp / sumv2);   // fs = velocity scale factor 
+   fs = sqrt(3 * temp / sumv2);   // fs = velocity scale factor
    for (int i=0; i<npart; ++i){
      vx[i] *= fs;
      vy[i] *= fs;
@@ -168,7 +168,7 @@ void Restart(void){
 
   seed = 1;    //Set seed for random numbers
   srand(seed); //Initialize random number generator
-  
+
   ReadInput.open("input.dat"); //Read input
 
   ReadInput >> temp;
@@ -225,17 +225,17 @@ void Restart(void){
       fy[i] = Force(i,1);
       fz[i] = Force(i,2);
   }
-  
+
   for(int i=0; i<npart; ++i){ //Verlet integration scheme
-  
+
       x_dt[i] = Pbc( 2.0 * x[i] - xold[i] + fx[i] * pow(delta,2) );
       y_dt[i] = Pbc( 2.0 * y[i] - yold[i] + fy[i] * pow(delta,2) );
       z_dt[i] = Pbc( 2.0 * z[i] - zold[i] + fz[i] * pow(delta,2) );
-  
+
       vx_dt2[i] = Pbc(x_dt[i] - x[i])/(delta);
       vy_dt2[i] = Pbc(y_dt[i] - y[i])/(delta);
       vz_dt2[i] = Pbc(z_dt[i] - z[i])/(delta); // v(t+dt/2)
-  	  
+
   }
   // Now T(t+dt/2)
   for (int i=0; i<npart; ++i) t += 0.5 * (vx_dt2[i]*vx_dt2[i] + vy_dt2[i]*vy_dt2[i] + vz_dt2[i]*vz_dt2[i]);
@@ -244,7 +244,7 @@ void Restart(void){
   scale_factor =  temp/Temp_dt2;
   cout << endl;
   cout <<"The temperature's scaling factor is = " << scale_factor << endl << endl;
-  for(int i=0; i<npart; ++i){ 
+  for(int i=0; i<npart; ++i){
     vx[i] = Pbc(x_dt[i] - xold[i])/(2.0 * delta) * scale_factor;
     vy[i] = Pbc(y_dt[i] - yold[i])/(2.0 * delta) * scale_factor;
     vz[i] = Pbc(z_dt[i] - zold[i])/(2.0 * delta) * scale_factor; // v(t)*scale_factor
@@ -256,7 +256,7 @@ void Restart(void){
     xold[i] = xnew;
     yold[i] = ynew;
     zold[i] = znew;
-     
+
     x[i] = x_dt[i];
     y[i] = y_dt[i];
     z[i] = z_dt[i];
@@ -313,20 +313,20 @@ double Force(int ip, int idir){ //Compute forces as -Grad_ip V(r)
       }
     }
   }
-  
+
   return f;
 }
 
-void Measure(){ //Properties measurement
+void Measure(string s){ //Properties measurement
   int bin;
   double v, t, vij;
   double dx, dy, dz, dr;
   ofstream Epot, Ekin, Etot, Temp;
 
-  Epot.open("output_epot.dat",ios::app);
-  Ekin.open("output_ekin.dat",ios::app);
-  Temp.open("output_temp.dat",ios::app);
-  Etot.open("output_etot.dat",ios::app);
+  Epot.open("data/output_epot_"+s+".dat",ios::app);
+  Ekin.open("data/output_ekin_"+s+".dat",ios::app);
+  Temp.open("data/output_temp_"+s+".dat",ios::app);
+  Etot.open("data/output_etot_"+s+".dat",ios::app);
 
   v = 0.0; //reset observables
   t = 0.0;
@@ -348,12 +348,12 @@ void Measure(){ //Properties measurement
 //Potential energy
        v += vij;
      }
-    }          
+    }
   }
 
 //Kinetic energy
   for (int i=0; i<npart; ++i) t += 0.5 * (vx[i]*vx[i] + vy[i]*vy[i] + vz[i]*vz[i]);
-   
+
     stima_pot = v/(double)npart; //Potential energy per particle
     stima_kin = t/(double)npart; //Kinetic energy per particle
     stima_temp = (2.0 / 3.0) * t/(double)npart; //Temperature
@@ -415,10 +415,10 @@ double Pbc(double r){  //Algorithm for periodic boundary conditions with side L=
 }
 
 void controll(int a){
-	if(a != 2){
-		cerr << "Add after file.exe 0 --> First sim; 1 --> Restart" << endl;
+	if(a != 3){
+		cerr << "Add after file.exe 0 --> First sim; 1 --> Restart, state_of_system" << endl;
 		exit(3);
-	}else{}	
+	}else{}
 	return;
 }
 /****************************************************************
