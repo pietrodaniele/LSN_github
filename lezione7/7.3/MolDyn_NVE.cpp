@@ -18,7 +18,6 @@ _/    _/  _/_/_/  _/_/_/_/ email: Davide.Galli@unimi.it
 
 using namespace std;
 
-
 int main(int argc,char*argv[]){
   controll(argc);
   if(atoi(argv[1])==0){
@@ -31,31 +30,33 @@ int main(int argc,char*argv[]){
   int nconf = 1;
   int Num_mis =1;
   for(int istep=1; istep <= nstep; ++istep){
-     Move();        //Move particles with Verlet algorithm
+     Move();           //Move particles with Verlet algorithm
      if(istep%iprint == 0) cout << "Number of time-steps: " << istep << endl;
      if(istep%10 == 0){
-        Measure();     //Properties measurement
-        //ConfXYZ(nconf);//Write actual configuration in XYZ format //Commented to avoid "filesystem full"!
+        Measure(argv[2]);     //Properties measurement
+//        ConfXYZ(nconf);//Write actual configuration in XYZ format //Commented to avoid "filesystem full"!
         nconf += 1;
+        // printing the hist_block
         if(Num_mis==100){
-          Print_hist_block(100);
+          Print_hist_block(Num_mis,argv[2]);
           Clean_hist_block();
           Num_mis=1;
         }else{
           Num_mis++;
         }
-     }
+      }
   }
-  int nmis=nstep/10, L=100, Num=nmis/L; // number of ...
   ConfFinal();         //Write final configuration to restart
   ConfOld();
-  Final_g_err(100);
-  // this is the part of exercise 4.2+4.3
-  string type[4] = {"epot","ekin","temp","etot"};
+  // this is the part of exercise 4.2
+  int nmis=nstep/10, L=100, Num=nmis/L; // number of ...
+  Final_g_err(Num,argv[2]);
+  cout << Num << endl;
+  string type[5] = {"epot","ekin","temp","etot","pres"};
   Experiment Md;
   double av[Num], av2[Num], sum_prog[Num], sum2_prog[Num], error_prog[Num];
-  for(int k=0; k<4; k++){
-  	Md.cicleblock(av,av2,type,nmis,L,k);
+  for(int k=0; k<5; k++){
+  	Md.cicleblock(av,av2,type,nmis,L,k,argv[2]);
   	Md.accumulation(sum_prog,av,Num);
   	Md.accumulation(sum2_prog,av2,Num);
   	Md.errorprog(sum_prog,sum2_prog,error_prog,Num);
@@ -64,9 +65,9 @@ int main(int argc,char*argv[]){
   return 0;
 }
 
-void Write(double* v1, double *v2, string *type, int nmis, int k, char *state){
+void Write(double* v1, double *v2, string *type, int nmis, int k, string state){
 	ofstream WriteData;
-	WriteData.open("ave_"+type[k]+"_"+state+".dat");
+	WriteData.open("data/ave_"+type[k]+"_"+state+".dat");
 	for(int i=0; i<nmis; i++){
 		WriteData<<v1[i]<<" "<<v2[i]<<endl;
 	}
@@ -160,10 +161,6 @@ void Input(void){ //Prepare all stuff for the simulation
      xold[i] = Pbc(x[i] - vx[i] * delta);
      yold[i] = Pbc(y[i] - vy[i] * delta);
      zold[i] = Pbc(z[i] - vz[i] * delta);
-   }
-   // cleaning hist
-   for(int i=0; i<npart; i++){
-     hist[i]=0;
    }
    bin_size = (box/2.0)/(double)bins;
    return;
@@ -275,10 +272,6 @@ void Restart(void){
     y[i] = y_dt[i];
     z[i] = z_dt[i];
   }
-  // cleaning hist
-  for(int i=0; i<npart; i++){
-    hist[i]=0;
-  }
   bin_size = (box/2.0)/(double)bins;
   return;
 }
@@ -335,24 +328,23 @@ double Force(int ip, int idir){ //Compute forces as -Grad_ip V(r)
   return f;
 }
 
-void Measure(){ //Properties measurement
+void Measure(string s){ //Properties measurement
   int bin;
-  double v, t, vij, wij;
+  double v, t, vij,w,wij;
   double dx, dy, dz, dr;
   ofstream Epot, Ekin, Etot, Temp, Pres;
-  double w = 0.0;
 
-  Epot.open("data/output_epot.dat",ios::app);
-  Ekin.open("data/output_ekin.dat",ios::app);
-  Temp.open("data/output_temp.dat",ios::app);
-  Etot.open("data/output_etot.dat",ios::app);
-  Pres.open("data/output_pres.dat",ios::app);
+  Epot.open("data/output_epot_"+s+".dat",ios::app);
+  Ekin.open("data/output_ekin_"+s+".dat",ios::app);
+  Temp.open("data/output_temp_"+s+".dat",ios::app);
+  Etot.open("data/output_etot_"+s+".dat",ios::app);
+  Pres.open("data/output_pres_"+s+".dat",ios::app);
 
   v = 0.0; //reset observables
   t = 0.0;
+  w = 0.0;
   // cleaning histogram
   for(int i=0; i<bins; i++) hist[i]=0;
-
 //cycle over pairs of particles
   for (int i=0; i<npart-1; ++i){
     for (int j=i+1; j<npart; ++j){
@@ -365,27 +357,27 @@ void Measure(){ //Properties measurement
      dr = sqrt(dr);
 
      if(dr < box/2){
-        int m = int(dr/bin_size);
-        //cout << m << endl;
-        hist[m] += 2;
+             int m = int(dr/bin_size);
+             //cout << m << endl;
+             hist[m] += 2;
       }
 
      if(dr < rcut){
        vij = 4.0/pow(dr,12) - 4.0/pow(dr,6);
        wij = 1.0/pow(dr,12) - 0.5/pow(dr,6);
-//Potential energy
+       //Potential energy
        v += vij;
+       // Pressure
        w += wij;
      }
     }
-    //cout<<1<<endl;
-    for(int i=0; i<bins; i++){
+  }
+// saving on the hist_block
+  for(int i=0; i<bins; i++){
       double deltaV =  (4./3.)*M_PI*(pow((i+1)*bin_size,3)-pow((i)*bin_size,3));
       // cout << deltaV << endl;
       hist_block[i] += double(hist[i]/(rho*npart*deltaV));
     }
-  }
-
 //Kinetic energy
   for (int i=0; i<npart; ++i) t += 0.5 * (vx[i]*vx[i] + vy[i]*vy[i] + vz[i]*vz[i]);
 
@@ -393,7 +385,7 @@ void Measure(){ //Properties measurement
     stima_kin = t/(double)npart; //Kinetic energy per particle
     stima_temp = (2.0 / 3.0) * t/(double)npart; //Temperature
     stima_etot = (t+v)/(double)npart; //Total energy per particle
-    stima_pres = (48.0 * w / 3.0)/(double)npart; //Pressure per particle
+    stima_pres  = (48.0 * w / 3.0)/(double)npart; //Pressure per particle
 
     Epot << stima_pot  << endl;
     Ekin << stima_kin  << endl;
@@ -406,61 +398,9 @@ void Measure(){ //Properties measurement
     Temp.close();
     Etot.close();
     Pres.close();
-
     return;
 }
 
-void Print_hist_block(int m){
-
-  ofstream Write;
-  Write.open("data/histogram_blocks.0",ios::app);
-  for(int f=0; f<bins; f++){
-    double r = (f+1)*bin_size;
-    //double deltaV =  (4./3.)*pi*(pow(box/2.+r,3)-(pow((box/2.),3)));
-    //Write << r << " " << hist_block[f]/((rho*npart)*(deltaV)) << endl;
-    Write << r << " " << hist_block[f]/m << endl;
-  }
-  Write.close();
-  return;
-};
-
-void Clean_hist_block(){
-// cleaning histogram
-  for(int i=0; i<bins; i++) hist_block[i]=0;
-  return;
-};
-
-void Final_g_err(int nblk){
-
-  ifstream Read;
-  double sum=0, sum2=0, err=0;
-  Read.open("data/histogram_blocks.0");
-  double* r = new double[nblk*bins];
-  double* H = new double[nblk*bins];
-  int m=0;
-  while(!Read.eof()){
-    Read >> r[m] >> H[m];
-    m++;
-  }
-  cout << 0 << endl;
-  ofstream Write("data/final_hist.0");
-  for(int i=0; i<m/(double)nblk -1; i++){
-    for(int j=0; j<nblk; j++){
-      sum += H[i+m/nblk];
-      sum2 += pow(H[i+m/nblk],2);
-    }
-    sum /= nblk;
-    sum2 /= nblk;
-    err=sqrt(abs((sum2 - sum*sum))/(double)nblk);
-    Write << r[i] << " " << sum << " " << err << endl;
-    sum=0;
-    sum2=0;
-    err=0;
-  }
-  Read.close();
-  Write.close();
-  return;
-};
 void ConfOld(void){ //Write final configuration
   ofstream WriteOld;
 
@@ -505,11 +445,63 @@ double Pbc(double r){  //Algorithm for periodic boundary conditions with side L=
 
 void controll(int a){
 	if(a != 3){
-		cerr << "./MolDyn_NVE.exe A type_of_state; where A=0/1" << endl;
+		cerr << "Add after file.exe 0 --> First sim; 1 --> Restart, state_of_system" << endl;
 		exit(3);
 	}else{}
 	return;
 }
+
+void Print_hist_block(int m, string s){
+
+  ofstream Write;
+  Write.open("data/histogram_blocks_"+s+".0",ios::app);
+  for(int f=0; f<bins; f++){
+    double r = (f+1)*bin_size;
+    //double deltaV =  (4./3.)*pi*(pow(box/2.+r,3)-(pow((box/2.),3)));
+    //Write << r << " " << hist_block[f]/((rho*npart)*(deltaV)) << endl;
+    Write << r << " " << hist_block[f]/m << endl;
+  }
+  Write.close();
+  return;
+}
+
+void Clean_hist_block(){
+// cleaning histogram
+  for(int i=0; i<bins; i++) hist_block[i]=0;
+    return;
+};
+
+void Final_g_err(int nblk, string s){
+
+    ifstream Read;
+    double sum=0, sum2=0, err=0;
+    Read.open("data/histogram_blocks_"+s+".0");
+    double* r = new double[nblk*bins];
+    double* H = new double[nblk*bins];
+    int m=0;
+    while(!Read.eof()){
+      Read >> r[m] >> H[m];
+      m++;
+    }
+    cout << 0 << endl;
+    ofstream Write("data/final_hist_"+s+".0");
+    for(int i=0; i<m/(double)nblk -1; i++){
+      for(int j=0; j<nblk; j++){
+        sum += H[i+m/nblk];
+        sum2 += pow(H[i+m/nblk],2);
+      }
+      sum /= nblk;
+      sum2 /= nblk;
+      err=sqrt(abs((sum2 - sum*sum))/(double)nblk);
+      Write << r[i] << " " << sum << " " << err << endl;
+      sum=0;
+      sum2=0;
+      err=0;
+    }
+    Read.close();
+    Write.close();
+    return;
+  };
 /****************************************************************
 *****************************************************************
     _/    _/  _/_/_/  _/       Numerical Simulation Laboratory

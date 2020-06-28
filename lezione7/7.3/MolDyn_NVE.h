@@ -43,16 +43,16 @@ void controll(int);
 void Input(void);
 void Restart(void);
 void Move(void);
-void Print_hist_block(int);
+void Print_hist_block(int,std::string);
 void Clean_hist_block();
-void Final_g_err(int);
+void Final_g_err(int,std::string);
 void ConfFinal(void);
 void ConfOld(void);
 void ConfXYZ(int);
-void Measure(void);
+void Measure(std::string);
 double Force(int, int);
 double Pbc(double);
-void Write(double *, double *,std::string *, int , int , char *);
+void Write(double *, double *,std::string *, int , int, std::string);
 /****************************************************************
 *****************************************************************
     _/    _/  _/_/_/  _/       Numerical Simulation Laboratory
