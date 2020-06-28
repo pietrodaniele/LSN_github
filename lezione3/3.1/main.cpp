@@ -21,19 +21,10 @@ unsigned int t_steps=100, M=100000, n=1000, l=M/n;
 vector<double> EC_direct, EC_discret, EP_direct, EP_discret;
 
 int main (){
-	cout << "MC steps M = "<< M << endl;
-	cout << "# of blocks N = " << n << endl;
-	cout << "# of MC steps in each block = " << l << endl;
-	cout << endl;
-	cout << "---------------------------------------" << endl;
-	cout << endl;
-	cout << "Market's parameters:" << endl;
-	cout << "		- asset price at t=0: S(0)=" << S0 << endl;
-	cout << "		- delivery time: T=" << T << endl;
-	cout << "		- strike price: K="<< K << endl;
-	cout << "		- risk-free interest rate: r=" << r << endl;
-	cout << "		- volatility: sigma=" << sigma << endl;
-	cout << endl;
+	// setting rnd gen
+	createrandom(rnd);
+	// parameters
+	print_parameters(M,n,l,t_steps,S0,T,K,r,sigma);
 	// settings
 	market.SetS0(S0);
   market.SetT(T);
@@ -43,10 +34,10 @@ int main (){
 	market.Set_t_steps(t_steps);
 	// creating data
 	for(unsigned int d=0; d<M; d++){
-		EC_direct.push_back(market.europeanCall(market.St_direct(),T));
-		EC_discret.push_back(market.europeanCall(market.St_discret(),T));
-		EP_direct.push_back(market.europeanPut(market.St_direct(),T));
-		EP_discret.push_back(market.europeanPut(market.St_discret(),T));
+		EC_direct.push_back(market.europeanCall(market.St_direct(T,rnd),T));
+		EC_discret.push_back(market.europeanCall(market.St_discret(T,rnd),T));
+		EP_direct.push_back(market.europeanPut(market.St_direct(T,rnd),T));
+		EP_discret.push_back(market.europeanPut(market.St_discret(T,rnd),T));
 	}
 	lab.Block_prog_ave_print(EC_direct,"EC_direct",n,l);
 	cout << "European Call with S(t) direct: done" << endl;

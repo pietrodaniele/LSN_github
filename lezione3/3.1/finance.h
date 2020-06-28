@@ -27,8 +27,8 @@ public:
   // methods finance
 	double europeanCall(double, double);
 	double europeanPut(double, double);
-	double St_direct();
-	double St_discret();
+	double St_direct(double, Random&);
+	double St_discret(double, Random&);
 };
 
 #endif // __Finance__
