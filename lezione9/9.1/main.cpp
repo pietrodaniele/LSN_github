@@ -30,13 +30,15 @@ int main (int argc, char const *argv[]){
   createrandom(rnd);
   Cities_config(rnd,config,x,y);
   // apro i file dove andrò a scrivere il miglior cammino e la fitness sulla metà della bestpop
-  ofstream Write_Best, Write_Ave;
+  ofstream Write_Best, Write_Ave, Write_L2;
   if(config==0){
     Write_Best.open("data/Best_indiv_circ.0");
     Write_Ave.open("data/Ave_half_circ.0");
+    Write_L2.open("data/L2_circ.0");
   }else{
     Write_Best.open("data/Best_indiv_square.0");
     Write_Ave.open("data/Ave_half_square.0");
+    Write_L2.open("data/L2_square.0");
   }
 	// creo la generazione 0, di partenza
   cout << "Every genenation has " << indiv << " individuals." << endl;
@@ -44,6 +46,7 @@ int main (int argc, char const *argv[]){
   population->In_Fitness_order(x,y);
   cout << "Genenation " << N_gnrts << " ---> Fittest = " << population->Get_BestFitnees(x,y) << endl;
   Write_Ave << N_gnrts << " " << population->Average_BHalfpop(x,y) << endl;
+  Write_L2 << N_gnrts << " " <<  population->Get_BestFitnees(x,y) << endl;
   vector<Individual> newgen;
   while(pie<generations[config]){
     int newgen_count=0, m=0;
@@ -74,6 +77,7 @@ int main (int argc, char const *argv[]){
     newgen.clear();
     population->In_Fitness_order(x,y);
     N_gnrts++;
+    Write_L2 << N_gnrts << " " <<  population->Get_BestFitnees(x,y) << endl;
     Write_Ave << N_gnrts << " " << population->Average_BHalfpop(x,y) << endl;
     cout << "Genenation " << N_gnrts << " ---> Fittest = " << population->Get_BestFitnees(x,y) << endl;
     pie++;
@@ -84,5 +88,6 @@ int main (int argc, char const *argv[]){
   }
   Write_Best.close();
   Write_Ave.close();
+  Write_L2.close();
 return 0;
 }
